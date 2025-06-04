@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 
 export default function ProductDetail() {
@@ -31,7 +32,7 @@ export default function ProductDetail() {
       const file = e.target.files[0]
       const reader = new FileReader()
       reader.onloadend = () => {
-        setImagePreview(reader.result )
+        setImagePreview(reader.result)
         setProduct({ ...product, image: reader.result })
       }
       reader.readAsDataURL(file)
@@ -41,17 +42,23 @@ export default function ProductDetail() {
   const handleUpdate = async () => {
     if (!product) return
     setLoading(true)
+
     try {
-      await fetch(`/api/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
       })
+
+      if (!res.ok) throw new Error('Failed to update')
+
+      toast.success('Product updated successfully!')
       setEditMode(false)
     } catch (error) {
       console.error(error)
-      alert('Failed to update product')
+      toast.error('Failed to update product.')
     }
+
     setLoading(false)
   }
 
@@ -61,9 +68,9 @@ export default function ProductDetail() {
     try {
       await fetch(`/api/products/${id}`, { method: 'DELETE' })
       router.push('/')
+      toast.success('Delete successful')
     } catch (error) {
-      console.error(error)
-      alert('Failed to delete product')
+      toast.error({error})
       setLoading(false)
     }
   }
@@ -117,9 +124,8 @@ export default function ProductDetail() {
           <button
             onClick={handleUpdate}
             disabled={loading}
-            className={`px-4 py-2 rounded text-white ${
-              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-            }`}
+            className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+              }`}
           >
             {loading ? (
               <svg
@@ -165,9 +171,8 @@ export default function ProductDetail() {
       <button
         onClick={() => setEditMode(!editMode)}
         disabled={loading}
-        className={`px-4 py-2 rounded text-white ${
-          loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-        }`}
+        className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+          }`}
       >
         {editMode ? 'Cancel' : 'Edit'}
       </button>
@@ -175,9 +180,8 @@ export default function ProductDetail() {
       <button
         onClick={handleDelete}
         disabled={loading}
-        className={`px-4 py-2 rounded text-white ${
-          loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-        }`}
+        className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+          }`}
       >
         {loading ? (
           <svg
