@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import useRequireAuth from '../../lib/useRequireAuth'
 export default function CreateProduct() {
+  const { status } = useRequireAuth()
+  
   const [form, setForm] = useState({
     name: '',
     description: '',

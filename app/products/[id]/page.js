@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-
+import useRequireAuth from '../../../lib/useRequireAuth'
 
 export default function ProductDetail() {
+  const { status } = useRequireAuth()
+ 
   const { id } = useParams()
   const router = useRouter()
   const [product, setProduct] = useState(null)
@@ -70,7 +72,7 @@ export default function ProductDetail() {
       router.push('/')
       toast.success('Delete successful')
     } catch (error) {
-      toast.error({error})
+      toast.error({ error })
       setLoading(false)
     }
   }

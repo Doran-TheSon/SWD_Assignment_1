@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
+import useRequireAuth from '@/lib/useRequireAuth'
 interface Product {
   _id: string
   name: string
@@ -13,7 +13,8 @@ interface Product {
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
-
+  const { status } = useRequireAuth()
+  
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
