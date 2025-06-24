@@ -12,12 +12,13 @@ export default function Navbar() {
       </Link>
       <div className="space-x-4">
         <Link href="/">Home</Link>
+        {/* // components/Navbar.tsx */}
         {session ? (
           <>
             <Link href="/create">Create</Link>
-            <button onClick={() => signOut()} className="underline">
-              Logout
-            </button>
+            <Link href="/cart">Cart</Link>
+            <Link href="/orders">My Orders</Link>
+            <button onClick={() => signOut()} className="underline">Logout</button>
           </>
         ) : (
           <>
@@ -25,6 +26,7 @@ export default function Navbar() {
             <Link href="/register">Register</Link>
           </>
         )}
+
       </div>
     </nav>
   )

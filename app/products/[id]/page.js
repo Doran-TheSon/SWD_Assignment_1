@@ -3,16 +3,19 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import useRequireAuth from '../../../lib/useRequireAuth'
+import { useCart } from '@/lib/useCart'
 
 export default function ProductDetail() {
   const { status } = useRequireAuth()
- 
   const { id } = useParams()
   const router = useRouter()
   const [product, setProduct] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const [imagePreview, setImagePreview] = useState('')
   const [loading, setLoading] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+
+  const { addToCart } = useCart()
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -72,15 +75,23 @@ export default function ProductDetail() {
       router.push('/')
       toast.success('Delete successful')
     } catch (error) {
-      toast.error({ error })
+      toast.error('Failed to delete product')
       setLoading(false)
     }
+  }
+
+  const handleAddToCart = () => {
+    if (!product) return
+    addToCart(product, quantity)
+    toast.success('Added to cart!')
+    console.log('📦 Cart saved:', JSON.parse(localStorage.getItem('cart') || '[]'))
+
   }
 
   if (!product) return <p>Loading...</p>
 
   return (
-    <div className="space-y-4 max-w-md mx-auto">
+    <div className="space-y-4 max-w-md mx-auto mt-10">
       {editMode ? (
         <>
           <input
@@ -167,49 +178,68 @@ export default function ProductDetail() {
           )}
           <p>{product.description}</p>
           <p>${product.price}</p>
+
+          {/* Add to Cart section */}
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              value={quantity}
+              onChange={e => setQuantity(Number(e.target.value))}
+              className="border w-16 p-1"
+            />
+            <button
+              onClick={handleAddToCart}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Add to Cart
+            </button>
+          </div>
         </>
       )}
 
-      <button
-        onClick={() => setEditMode(!editMode)}
-        disabled={loading}
-        className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-          }`}
-      >
-        {editMode ? 'Cancel' : 'Edit'}
-      </button>
+      <div className="flex flex-wrap gap-2 mt-6">
+        <button
+          onClick={() => setEditMode(!editMode)}
+          disabled={loading}
+          className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+            }`}
+        >
+          {editMode ? 'Cancel' : 'Edit'}
+        </button>
 
-      <button
-        onClick={handleDelete}
-        disabled={loading}
-        className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-          }`}
-      >
-        {loading ? (
-          <svg
-            className="animate-spin h-5 w-5 mx-auto"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            ></path>
-          </svg>
-        ) : (
-          'Delete'
-        )}
-      </button>
+        <button
+          onClick={handleDelete}
+          disabled={loading}
+          className={`px-4 py-2 rounded text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+            }`}
+        >
+          {loading ? (
+            <svg
+              className="animate-spin h-5 w-5 mx-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          ) : (
+            'Delete'
+          )}
+        </button>
+      </div>
     </div>
   )
 }
